@@ -5,7 +5,7 @@
 : ${DOWNLOAD_URL:=}
 : ${GIT_URL:="git://github.com/bitcoin-core/secp256k1.git"}
 : ${LIBRARY:=libsecp256k1.a}
-
+: ${WORKING_DIR:=`pwd`}
 # framework config
 : ${FRAMEWORK_NAME:=secp256k1}
 : ${FRAMEWORK_VERSION:=A}
@@ -16,7 +16,7 @@
 # : ${IPHONE_SDKVERSION:=11.1}
 : ${IPHONE_SDKVERSION:=$(echo $(xcodebuild -showsdks) | grep -o  'iphonesimulator[0-9]\+.[0-9]\+' | grep -o  '[0-9]\+.[0-9]\+')}
 
-source shared.sh
+source $WORKING_DIR/shared.sh
 
 untarLzippedBundle() {
   echo "Untar bundle to $SRC_DIR..."
