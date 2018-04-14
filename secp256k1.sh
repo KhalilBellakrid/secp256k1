@@ -102,9 +102,9 @@ echo "================================================================="
 showConfig
 developerToolsPresent
 if [ "$ENV_ERROR" == "0" ]; then
-    createBuildDir
-    configureForTargetArch
-    cleanUp
+#createBuildDir
+#configureForTargetArch
+#cleanUp
   echo "Completed successfully.."
 else
   echo "Build failed..."
