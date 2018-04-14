@@ -8,8 +8,9 @@
 
 # build architectures
 # BUILD_ARCHS="i386 armv7s armv7 arm64"
-BUILD_ARCHS="armv7s armv7 arm64 i386 x86_64"
-
+#BUILD_ARCHS="armv7s armv7 arm64 i386 x86_64"
+#BUILD_ARCHS="armv7"
+TARGET_ARCH="armv7"
 # XCode directories
 : ${XCODE_ROOT:=`xcode-select -print-path`}
 XCODE_SIMULATOR=$XCODE_ROOT/Platforms/iPhoneSimulator.platform/Developer
@@ -120,33 +121,22 @@ developerToolsPresent () {
 
 createDirs () {
   echo "Create directories..."
-  [ -d $SRC_DIR ] || mkdir -p $SRC_DIR/$FRAMEWORK_NAME-$FRAMEWORK_CURRENT_VERSION
   [ -d $BUILD_DIR ] || mkdir -p $BUILD_DIR
-  [ -d $FRAMEWORK_DIR ] || mkdir -p $FRAMEWORK_DIR
-
-  mkdir -p $FRAMEWORK_BUNDLE
-  mkdir -p $FRAMEWORK_BUNDLE/Versions
-  mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION
-  mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Resources
-  mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Headers
-  mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Documentation
-
-  ln -s $FRAMEWORK_VERSION               $FRAMEWORK_BUNDLE/Versions/Current
-  ln -s Versions/Current/Headers         $FRAMEWORK_BUNDLE/Headers
-  ln -s Versions/Current/Resources       $FRAMEWORK_BUNDLE/Resources
-  ln -s Versions/Current/Documentation   $FRAMEWORK_BUNDLE/Documentation
-  ln -s Versions/Current/$FRAMEWORK_NAME $FRAMEWORK_BUNDLE/$FRAMEWORK_NAME
-
   doneSection
+}
+
+createBuildDir () {
+    echo "Create directories..."
+    [ -d $BUILD_DIR ] || mkdir -p $BUILD_DIR
+    doneSection
 }
 
 cleanUp() {
     echo "Cleaning up before build..."
-    rm -rf $SRC_DIR
-    rm -rf $BUILD_DIR
-    rm -rf $FRAMEWORK_DIR
+    rm *.log *.trs
     doneSection
 }
+
 cleanUpSrc() {
     echo "Cleaning up src before build..."
     rm -rf $SRC_DIR
@@ -217,6 +207,11 @@ compileSrcForAllArchs() {
     exportConfig $buildArch
     compileSrcForArch $buildArch
   done
+}
+
+configureForTargetArch() {
+    exportConfig $TARGET_ARCH
+    configureForArch $TARGET_ARCH
 }
 
 buildUniversalLib() {

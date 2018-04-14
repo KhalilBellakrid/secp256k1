@@ -3,7 +3,7 @@
 # Bundle config
 : ${BUNDLE:=}
 : ${DOWNLOAD_URL:=}
-: ${GIT_URL:="git://github.com/bitcoin-core/secp256k1.git"}
+: #${GIT_URL:="git://github.com/bitcoin-core/secp256k1.git"}
 : ${LIBRARY:=libsecp256k1.a}
 : ${WORKING_DIR:=`pwd`}
 # framework config
@@ -18,12 +18,12 @@
 
 source $WORKING_DIR/shared.sh
 
-untarLzippedBundle() {
-  echo "Untar bundle to $SRC_DIR..."
-  tar -zxvf secp256k1-1.0.0.tar.gz -C $SRC_DIR
-  doneSection
-}
-[[ $(xcodebuild -showsdks | grep iOS ) =~ iphonesimulator11.1 ]] && echo matched
+#untarLzippedBundle() {
+#  echo "Untar bundle to $SRC_DIR..."
+#  tar -zxvf secp256k1-1.0.0.tar.gz -C $SRC_DIR
+#  doneSection
+#}
+#[[ $(xcodebuild -showsdks | grep iOS ) =~ iphonesimulator11.1 ]] && echo matched
 exportConfig() {
   echo "Export configuration..."
   IOS_ARCH=$1
@@ -34,9 +34,9 @@ exportConfig() {
   fi
   CFLAGS="-arch $IOS_ARCH -fPIC -g -Os -pipe --sysroot=$IOS_SYSROOT"
   if [ "$IOS_ARCH" == "armv7s" ] || [ "$IOS_ARCH" == "armv7" ]; then
-    CFLAGS="$CFLAGS -mios-version-min=6.0"
+    CFLAGS="$CFLAGS -mios-version-min=10.0"
   else
-    CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=7.0"
+    CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=11.0"
   fi
   CXXFLAGS=$CFLAGS
   CPPFLAGS=$CFLAGS
@@ -70,8 +70,8 @@ compileSrcForArch() {
   local buildArch=$1
   configureForArch $buildArch
   echo "Building source for architecture $buildArch..."
-  ( cd $SRC_DIR/$FRAMEWORK_NAME-$FRAMEWORK_CURRENT_VERSION; \
-    echo "Calling make clean..."
+    echo "from $WORKING_DIR"
+  ( echo "Calling make clean..."
     make clean; \
     echo "Calling make check..."
     make check; \
@@ -86,13 +86,13 @@ compileSrcForArch() {
 
 configureForArch() {
   local buildArch=$1
-  cleanUpSrc
+    #cleanUpSrc
   createDirs
   # untarLzippedBundle
-  gitCloneSrc
-  echo "Configure for architecture $buildArch..."
-  ( cd $SRC_DIR/$FRAMEWORK_NAME-$FRAMEWORK_CURRENT_VERSION; \
-    ./autogen.sh && ./configure --prefix $BUILD_DIR/$buildArch --disable-shared --host="none-apple-darwin" --enable-static --disable-assembly --enable-module-recovery)
+    #gitCloneSrc
+echo "Configure for architecture $buildArch..."
+  echo "from $WORKING_DIR"
+  (./autogen.sh && ./configure --prefix $BUILD_DIR/$buildArch --disable-shared --host="none-apple-darwin" --enable-static --disable-assembly --enable-module-recovery)
   doneSection
 }
 
@@ -102,15 +102,9 @@ echo "================================================================="
 showConfig
 developerToolsPresent
 if [ "$ENV_ERROR" == "0" ]; then
-  cleanUp
-  createDirs
-  # downloadSrc
- # untarLzippedBundle
- # gitCloneSrc
-  compileSrcForAllArchs
-  buildUniversalLib
-  moveHeadersToFramework
-  buildFrameworkPlist
+    createBuildDir
+    configureForTargetArch
+    cleanUp
   echo "Completed successfully.."
 else
   echo "Build failed..."
